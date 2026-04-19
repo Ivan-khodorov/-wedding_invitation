@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 375 374.999991" preserveAspectRatio="xMidYMid meet" version="1.0">
+  <path
+    stroke-linecap="butt"
+    transform="matrix(-0.253256, 0.705947, -0.705947, -0.253256, 375.091386, 52.281729)"
+    fill="none"
+    stroke-linejoin="miter"
+    d="M 6.072095 169.333633 C -22.217053 -42.443701 51.140385 -42.441954 196.135989 139.330829"
+    stroke="#ffffff"
+    stroke-width="6"
+    stroke-opacity="1"
+    stroke-miterlimit="4"
+  />
+  <path
+    stroke-linecap="butt"
+    transform="matrix(0.508551, -0.551249, 0.551249, 0.508551, -0.197782, 296.492911)"
+    fill="none"
+    stroke-linejoin="miter"
+    d="M 2.997872 599.644558 C 7.03843 -27.881941 120.864391 -27.881186 344.464864 95.642698"
+    stroke="#ffffff"
+    stroke-width="6"
+    stroke-opacity="1"
+    stroke-miterlimit="4"
+  />
+
+</svg>

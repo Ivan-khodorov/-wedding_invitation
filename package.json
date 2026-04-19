@@ -1,0 +1,30 @@
+{
+  "name": "wedding-invitation",
+  "version": "0.1.0",
+  "description": "Wedding invitation landing skeleton",
+  "private": true,
+  "main": "src/js/index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --mode development --open --host 0.0.0.0",
+    "watch": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.5.1",
+    "cssnano": "^5.0.12",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.4.5",
+    "postcss-loader": "^6.2.1",
+    "prettier": "^2.5.1",
+    "raw-loader": "^4.0.2",
+    "sass": "*",
+    "sass-loader": "^12.3.0",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0"
+  }
+}
