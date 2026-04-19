@@ -7,6 +7,12 @@
   <title>Свадебное приглашение</title>
   <meta name="description" content="Персональная страница свадебного приглашения">
   <link rel="stylesheet" href="css/main.css">
+  <link rel="preload" as="font" href="fonts/BDScript-Regular.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="fonts/BDScript-Bold.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="image" href="img/8.png" fetchpriority="high">
+  <link rel="preload" as="image" href="img/backgraund.png">
+  <link rel="preload" as="video" href="img/fon_video_mobile.mp4" type="video/mp4" media="(max-width: 768px)">
+  <link rel="preload" as="video" href="img/fon_video.mp4" type="video/mp4" media="(min-width: 769px)">
 </head>
 <body>
 
@@ -26,7 +32,7 @@
       </div>
 
       <figure class="hero__pair">
-        <img src="img/8.png" alt="Фото пары">
+        <img src="img/8.png" alt="Фото пары" loading="eager" fetchpriority="high" decoding="async">
       </figure>
 
 <!--      <figure class="hero__cat">-->
@@ -45,7 +51,7 @@
 
   <div class="invitation__after-video">
     <div class="invitation__background" aria-hidden="true">
-      <img class="invitation__background-image" src="img/backgraund.png" alt="">
+      <img class="invitation__background-image" src="img/backgraund.png" alt="" loading="eager" decoding="async">
     </div>
 
     <section class="place" aria-label="Место">

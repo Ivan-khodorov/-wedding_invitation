@@ -9,6 +9,9 @@ const INTRO_SCROLL_NUDGE_PX = 300;
 const INTRO_SCROLL_NUDGE_DURATION_MS = 900;
 const INTRO_SCROLL_NUDGE_DELAY_MS = 400;
 const MOBILE_ONLY_NOTICE_MARKER = "data-mobile-only-notice";
+const SCENE_BOOTSTRAP_PENDING_CLASS = "is-bootstrap-pending";
+const ASSET_PRELOAD_TIMEOUT_MS = 12000;
+const VIDEO_PRELOAD_READY_STATE = 3;
 const TYPING_TEXT_SELECTOR = "[data-typing-text]";
 const TYPING_VISIBLE_CLASS = "is-visible";
 const TYPING_ACTIVE_CLASS = "is-typing";
@@ -39,6 +42,117 @@ function clamp(value, min, max) {
 
 function isMobileViewportWidth() {
   return window.innerWidth <= MOBILE_ONLY_MAX_WIDTH_PX;
+}
+
+function withTimeout(promise, timeoutMs) {
+  return new Promise((resolve) => {
+    let isSettled = false;
+
+    const timerId = window.setTimeout(() => {
+      if (isSettled) {
+        return;
+      }
+
+      isSettled = true;
+      resolve();
+    }, timeoutMs);
+
+    promise
+      .catch(() => {
+        // Asset preload errors should not block the scene forever.
+      })
+      .then(() => {
+        if (isSettled) {
+          return;
+        }
+
+        isSettled = true;
+        window.clearTimeout(timerId);
+        resolve();
+      });
+  });
+}
+
+function waitForFontFaces() {
+  if (!document.fonts || !document.fonts.ready) {
+    return Promise.resolve();
+  }
+
+  return withTimeout(document.fonts.ready, ASSET_PRELOAD_TIMEOUT_MS);
+}
+
+function waitForImageElement(imageElement) {
+  if (imageElement.complete && imageElement.naturalWidth > 0) {
+    if (typeof imageElement.decode === "function") {
+      return imageElement.decode().catch(() => {});
+    }
+
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const handleDone = () => {
+      imageElement.removeEventListener("load", handleDone);
+      imageElement.removeEventListener("error", handleDone);
+      resolve();
+    };
+
+    imageElement.addEventListener("load", handleDone);
+    imageElement.addEventListener("error", handleDone);
+  });
+}
+
+function waitForSceneImages(sceneRoot) {
+  const imageElements = Array.from(sceneRoot.querySelectorAll("img"));
+
+  if (!imageElements.length) {
+    return Promise.resolve();
+  }
+
+  return withTimeout(Promise.all(imageElements.map(waitForImageElement)), ASSET_PRELOAD_TIMEOUT_MS);
+}
+
+function waitForHeroVideo(videoElement) {
+  if (!videoElement) {
+    return Promise.resolve();
+  }
+
+  if (videoElement.readyState >= VIDEO_PRELOAD_READY_STATE) {
+    return Promise.resolve();
+  }
+
+  videoElement.preload = "auto";
+
+  try {
+    videoElement.load();
+  } catch (error) {
+    // Some browsers can reject load calls under specific states; continue with fallback listeners.
+  }
+
+  const videoReadyPromise = new Promise((resolve) => {
+    const handleReady = () => {
+      videoElement.removeEventListener("canplay", handleReady);
+      videoElement.removeEventListener("canplaythrough", handleReady);
+      videoElement.removeEventListener("loadeddata", handleReady);
+      videoElement.removeEventListener("error", handleReady);
+      resolve();
+    };
+
+    videoElement.addEventListener("canplay", handleReady, { once: true });
+    videoElement.addEventListener("canplaythrough", handleReady, { once: true });
+    videoElement.addEventListener("loadeddata", handleReady, { once: true });
+    videoElement.addEventListener("error", handleReady, { once: true });
+  });
+
+  return withTimeout(videoReadyPromise, ASSET_PRELOAD_TIMEOUT_MS);
+}
+
+function preloadSceneAssets(sceneRoot, videoElement) {
+  return Promise.all([
+    waitForSceneImages(sceneRoot),
+    waitForFontFaces(),
+    waitForHeroVideo(videoElement)
+  ]);
 }
 
 function getTypingLines(sceneRoot) {
@@ -334,7 +448,7 @@ function bindPlaceArrow(sceneRoot) {
   }
 }
 
-export function initializeScene() {
+export async function initializeScene() {
   const sceneRoot = document.querySelector("[data-scene]");
 
   if (!sceneRoot) {
@@ -348,13 +462,18 @@ export function initializeScene() {
   }
 
   bindMobileOnlyMode(sceneRoot);
-  limitPageHeightForIntro();
   sceneRoot.classList.remove(PHOTO_VISIBLE_CLASS);
+  sceneRoot.classList.remove(READY_CLASS);
+  sceneRoot.classList.add(SCENE_BOOTSTRAP_PENDING_CLASS);
   prepareTypingLines(sceneRoot);
+
+  await preloadSceneAssets(sceneRoot, videoElement);
+  limitPageHeightForIntro();
   bindNamesReveal(sceneRoot);
   bindPlaceArrow(sceneRoot);
 
   window.requestAnimationFrame(() => {
+    sceneRoot.classList.remove(SCENE_BOOTSTRAP_PENDING_CLASS);
     sceneRoot.classList.add(READY_CLASS);
   });
 }

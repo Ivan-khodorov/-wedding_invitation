@@ -137,6 +137,12 @@ html.is-desktop-blocked .mobile-only-notice {
   width: 100%;
   min-height: 100dvh;
   overflow: visible;
+  opacity: 1;
+  transition: opacity 0.32s ease;
+}
+
+.invitation.is-bootstrap-pending {
+  opacity: 0;
 }
 
 .hero {
